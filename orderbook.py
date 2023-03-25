@@ -1,11 +1,18 @@
 from functions import *
-import requests, sys, re, time
+import re, time
 import asyncio, aiohttp
 from project_exceptions import InvalidTokenError
 
-
 class Books:
+    """A class to fetch and process order book data for a cryptocurrency pair from multiple exchanges."""
+    
     def __init__(self, pair='BTC_USDT', limit=100):
+        """Initialize the Books object with a pair and limit.
+        
+        Args:
+            pair (str): A string representing the cryptocurrency pair, e.g., 'BTC_USDT'.
+            limit (int): The maximum number of bids and asks to fetch from each exchange.
+        """
         if re.search(r"^(\w+)_(\w+)$", pair):
             self.pair = pair
         else:
@@ -14,6 +21,11 @@ class Books:
         self.urls = self.generate_urls()
 
     def generate_urls(self):
+        """Generate the URLs for each exchange based on the provided pair and limit.
+        
+        Returns:
+            dict: A dictionary containing the URLs for each exchange.
+        """
         pair_formatted = {
             'binance': self.pair.replace('_', '').upper(),
             'bitfinex': self.pair.replace('_', '')[:-1].upper(),
@@ -34,6 +46,15 @@ class Books:
         }
 
     async def make_request(self, name, url):
+        """Make an asynchronous request to fetch data from an exchange.
+        
+        Args:
+            name (str): The name of the exchange.
+            url (str): The URL to fetch data from the exchange.
+            
+        Returns:
+            dict: A dictionary containing the exchange name and the fetched JSON data.
+        """
         async with aiohttp.ClientSession() as session:
             try:
                 response = await session.get(url)
@@ -42,11 +63,22 @@ class Books:
                 pass
 
     async def process_requests(self):
+        """Process the asynchronous requests to fetch data from all exchanges.
+        
+        Returns:
+            list: A list of dictionaries containing the exchange names and their fetched JSON data.
+        """
         tasks = [asyncio.ensure_future(self.make_request(name, url)) for name, url in self.urls.items()]
         responses = await asyncio.gather(*tasks)
         return responses
-    
+
+   
     def process(self):
+        """Fetch and process order book data for the cryptocurrency pair from multiple exchanges.
+        
+        Returns:
+            dict: A dictionary containing the cryptocurrency pair and formatted data for each exchange.
+        """
         raw_data = asyncio.run(self.process_requests())
         formatted_data = {}
 
@@ -86,6 +118,7 @@ class Books:
                             formatted_data[exchange] = {"bids": data["data"]["bids"], "asks": data["data"]["asks"]}
 
         return {'pair': self.pair, 'data': formatted_data}
+
  
  
 if __name__ == "__main__":  
