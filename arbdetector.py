@@ -49,8 +49,9 @@ class ArbitrageDetector:
                     quantity = buy_amount / (total_value / total_amount)
                     exchange_quantities[exchange] = quantity
                     break
-        max_quantity = max(exchange_quantities.values())
-        return {exchange: max_quantity for exchange, quantity in exchange_quantities.items() if quantity == max_quantity}
+        if exchange_quantities:
+            max_quantity = max(exchange_quantities.values())
+            return {exchange: max_quantity for exchange, quantity in exchange_quantities.items() if quantity == max_quantity}
 
     def get_sell_amount(self, data, sell_quantity):
         """
@@ -72,8 +73,9 @@ class ArbitrageDetector:
                     sell_amount = (total_value / total_amount) * sell_quantity
                     exchange_amounts[exchange] = sell_amount
                     break
-        max_amount = max(exchange_amounts.values())
-        return {exchange: max_amount for exchange, amount in exchange_amounts.items() if amount == max_amount}
+        if exchange_amounts:
+            max_quantity = max(exchange_amounts.values())
+            return {exchange: max_quantity for exchange, quantity in exchange_amounts.items() if quantity == max_quantity}
 
     def check_internet_connection(self):
         """Check if there is an active internet connection."""
@@ -98,12 +100,12 @@ class ArbitrageDetector:
 
         if order_book_data:
             buy_data = [self.get_buy_quantity(order_book_data, amount) for amount in list_of_amounts]
-            buy_dict = {value: key for each in buy_data for key, value in each.items()}
-            buy_list = sorted(buy_dict)
+            buy_dict = {value: key for each in buy_data if each != None for key, value in each.items()}
+            buy_list = list(buy_dict.keys())
 
             sell_data = [self.get_sell_amount(order_book_data, amount) for amount in buy_list]
-            sell_dict = {value: key for each in sell_data for key, value in each.items()}
-            sell_list = sorted(sell_dict)
+            sell_dict = {value: key for each in sell_data if each != None for key, value in each.items()}
+            sell_list = list(sell_dict.keys())
 
             final_buy_dict = {amount: buy_dict[amount] for amount in buy_list}
             final_sell_dict = {amount: sell_dict[amount] for amount in sell_list}
