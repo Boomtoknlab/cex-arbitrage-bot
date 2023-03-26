@@ -1,5 +1,5 @@
 from orderbook import Books
-import urllib.request, sys
+import urllib.request
 from urllib.error import URLError
 from project_exceptions import InvalidTokenError
 
