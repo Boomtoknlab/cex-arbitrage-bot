@@ -27,7 +27,7 @@ class ArbitrageDetector:
             order_book = Books(self.token)
             return order_book.process()['data']
         except InvalidTokenError as e:
-            sys.exit(e)
+            raise ValueError("Invalid Token Input")
 
     def get_buy_quantity(self, data, buy_amount):
         """
@@ -117,7 +117,7 @@ class ArbitrageDetector:
                 if max(diff_list) > diff:
                     if (diff_list[num-1] / list(final_sell_dict.items())[num-1][0]) > 0.0:
                         print("\n")
-                        print(f"Using ${list(final_sell_dict.items())[num-1][0]} or less, buy {token} from {list(final_buy_dict.items())[num-1][1]} to {list(final_sell_dict.items())[num-1][1][1]} for ${diff_list[num-1]} profit.")
+                        return(f"Using ${list(final_sell_dict.items())[num-1][0]} or less, buy {token} from {list(final_buy_dict.items())[num-1][1]} to {list(final_sell_dict.items())[num-1][1][1]} for ${diff_list[num-1]} profit.")
                         return 0
                     else:
                         return 1
@@ -125,7 +125,7 @@ class ArbitrageDetector:
                 start = list(final_sell_dict.items())[num-1][0]
                 self.run()
                 if (diff_list[num-1] / list(final_sell_dict.items())[num-1][0]) > 0.0:
-                    print(f"Using ${list(final_sell_dict.items())[num-1][0]} or less, buy {token} from {list(final_buy_dict.items())[num-1][1]} to {list(final_sell_dict.items())[num-1][1][1]} for ${diff_list[num-1]} profit.")
+                    return(f"Using ${list(final_sell_dict.items())[num-1][0]} or less, buy {token} from {list(final_buy_dict.items())[num-1][1]} to {list(final_sell_dict.items())[num-1][1][1]} for ${diff_list[num-1]} profit.")
                     return 0
         else:
             print("TOKEN NOT FOUND ON ALL EXCHANGES")
